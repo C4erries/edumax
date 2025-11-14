@@ -53,6 +53,11 @@ def notify_tuition_reminder(user_max_id: int) -> None:
     _post(f"/notify/payment/tuition/{int(user_max_id)}", None)
 
 
+def notify_document_ready(user_max_id: int) -> None:
+    """Trigger ready-document flow in bot."""
+    _post(f"/notify/ready/{int(user_max_id)}", None)
+
+
 def _normalize_ids(values: Iterable[int]) -> list[int]:
     unique: list[int] = []
     seen: set[int] = set()

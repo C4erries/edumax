@@ -43,6 +43,33 @@ def get_balance(
     }
 
 
+
+
+@router.get("/status", summary="Статус задолженностей по оплате")
+def get_payment_status(
+    user_id: Optional[int] = None,
+    db: Session = Depends(get_db),
+) -> dict:
+    """Вернуть необходимость оплат по MAX-ID"""
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="user_id is required",
+        )
+
+    user = db.query(User).filter(User.max_id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Пользователь не найден",
+        )
+
+    balance_info = get_user_balance_info(db, user.id)
+    return {
+        "need_dorm": balance_info.get("dormitory_amount", 0) > 0,
+        "need_tuition": balance_info.get("tuition_amount", 0) > 0,
+    }
+
 @router.get("", response_model=List[PaymentRead], summary="История платежей")
 def get_my_payments(
     current_user: User = Depends(get_current_active_user),
